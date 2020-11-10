@@ -83,20 +83,33 @@ Instead pin to the release tag (e.g. `?ref=tags/x.y.z`) of one of our [latest re
 
 For a complete example, see [examples/complete](examples/complete)
 
+**THIS FORK USES `providers` to configure the module vs the upstream that passes in the roles and depends on there being
+a `default` aws profile on the system**
+
 ```hcl
+provider aws {
+  alias = "requester"
+  //...
+}
+
+provider aws {
+  alias = "accepter"
+  //...
+}
+
 module "vpc_peering_cross_account" {
   source           = "git::https://github.com/cloudposse/terraform-aws-vpc-peering-multi-account.git?ref=master"
   namespace        = "eg"
   stage            = "dev"
   name             = "cluster"
+  providers = {
+    aws.requester = aws.requester
+    aws.accepter = aws.accepter
+  }
 
-  requester_aws_assume_role_arn             = "arn:aws:iam::XXXXXXXX:role/cross-account-vpc-peering-test"
-  requester_region                          = "us-west-2"
   requester_vpc_id                          = "vpc-xxxxxxxx"
   requester_allow_remote_vpc_dns_resolution = true
 
-  accepter_aws_assume_role_arn             = "arn:aws:iam::YYYYYYYY:role/cross-account-vpc-peering-test"
-  accepter_region                          = "us-east-1"
   accepter_vpc_id                          = "vpc-yyyyyyyy"
   accepter_allow_remote_vpc_dns_resolution = true
 }
@@ -311,8 +324,6 @@ Available targets:
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | accepter\_allow\_remote\_vpc\_dns\_resolution | Allow accepter VPC to resolve public DNS hostnames to private IP addresses when queried from instances in the requester VPC | `bool` | `true` | no |
-| accepter\_aws\_assume\_role\_arn | Accepter AWS Assume Role ARN | `string` | n/a | yes |
-| accepter\_region | Accepter AWS region | `string` | n/a | yes |
 | accepter\_subnet\_tags | Only add peer routes to accepter VPC route tables of subnets matching these tags | `map(string)` | `{}` | no |
 | accepter\_vpc\_id | Accepter VPC ID filter | `string` | `""` | no |
 | accepter\_vpc\_tags | Accepter VPC Tags filter | `map(string)` | `{}` | no |
@@ -323,8 +334,6 @@ Available targets:
 | name | Name  (e.g. `app` or `cluster`) | `string` | n/a | yes |
 | namespace | Namespace (e.g. `eg` or `cp`) | `string` | n/a | yes |
 | requester\_allow\_remote\_vpc\_dns\_resolution | Allow requester VPC to resolve public DNS hostnames to private IP addresses when queried from instances in the accepter VPC | `bool` | `true` | no |
-| requester\_aws\_assume\_role\_arn | Requester AWS Assume Role ARN | `string` | n/a | yes |
-| requester\_region | Requester AWS region | `string` | n/a | yes |
 | requester\_subnet\_tags | Only add peer routes to requester VPC route tables of subnets matching these tags | `map(string)` | `{}` | no |
 | requester\_vpc\_id | Requester VPC ID filter | `string` | `""` | no |
 | requester\_vpc\_tags | Requester VPC Tags filter | `map(string)` | `{}` | no |

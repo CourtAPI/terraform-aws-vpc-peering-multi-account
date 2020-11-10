@@ -43,16 +43,6 @@ variable "auto_accept" {
   description = "Automatically accept the peering"
 }
 
-variable "accepter_aws_assume_role_arn" {
-  description = "Accepter AWS Assume Role ARN"
-  type        = string
-}
-
-variable "accepter_region" {
-  type        = string
-  description = "Accepter AWS region"
-}
-
 variable "accepter_vpc_id" {
   type        = string
   description = "Accepter VPC ID filter"

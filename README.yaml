@@ -59,20 +59,33 @@ usage: |2-
 
   For a complete example, see [examples/complete](examples/complete)
 
+  **THIS FORK USES `providers` to configure the module vs the upstream that passes in the roles and depends on there being
+  a `default` aws profile on the system**
+
   ```hcl
+  provider aws {
+    alias = "requester"
+    //...
+  }
+
+  provider aws {
+    alias = "accepter"
+    //...
+  }
+
   module "vpc_peering_cross_account" {
     source           = "git::https://github.com/cloudposse/terraform-aws-vpc-peering-multi-account.git?ref=master"
     namespace        = "eg"
     stage            = "dev"
     name             = "cluster"
+    providers = {
+      aws.requester = aws.requester
+      aws.accepter = aws.accepter
+    }
 
-    requester_aws_assume_role_arn             = "arn:aws:iam::XXXXXXXX:role/cross-account-vpc-peering-test"
-    requester_region                          = "us-west-2"
     requester_vpc_id                          = "vpc-xxxxxxxx"
     requester_allow_remote_vpc_dns_resolution = true
 
-    accepter_aws_assume_role_arn             = "arn:aws:iam::YYYYYYYY:role/cross-account-vpc-peering-test"
-    accepter_region                          = "us-east-1"
     accepter_vpc_id                          = "vpc-yyyyyyyy"
     accepter_allow_remote_vpc_dns_resolution = true
   }

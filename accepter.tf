@@ -1,15 +1,6 @@
 # Accepter's credentials
 provider "aws" {
   alias                   = "accepter"
-  region                  = var.accepter_region
-  skip_metadata_api_check = var.skip_metadata_api_check
-
-  dynamic "assume_role" {
-    for_each = var.accepter_aws_assume_role_arn != "" ? ["true"] : []
-    content {
-      role_arn = var.accepter_aws_assume_role_arn
-    }
-  }
 }
 
 locals {
